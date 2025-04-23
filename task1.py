@@ -185,6 +185,7 @@ class Task1:
         """Градиентный спуск с аналитическим подбором шага"""
         trajectory = [start_point.copy()]
         solutions = []
+        fs = []
         x_k = start_point.copy()
         
         t = 1
@@ -194,7 +195,8 @@ class Task1:
         for _ in range(iterations):
             solution = Solution()
             solution.x_k = x_k.copy()
-
+            fs1= self.function.subs({self.x1: x_k[0], self.x2: x_k[1]})
+            fs.append(fs1)
             # Вычисляем градиент в текущей точке
             grad = np.array([
                 float(self.gradient[0].subs({self.x1: x_k[0], self.x2: x_k[1]})),
@@ -239,8 +241,10 @@ class Task1:
             solutions.append(solution)
             trajectory.append(x_k.copy())
         
+        if min:
+            fs = trajectory[::-1]
         # self.draw_level_lines(trajectory)
-        return np.array(trajectory), solutions
+        return np.array(trajectory), solutions, fs
     def draw_level_lines(self, points):
         """Рисует линии уровня функции f(x1, x2) на self.figure через значения в точках points."""
         if not hasattr(self, 'mask'):
@@ -338,9 +342,8 @@ def main():
     # Начальная точка внутри ОДР
     start_point = task.get_random_point()
 
-    trajectory,solutions = task.gradient_descent(6, start_point)
-    print(trajectory)
-
+    trajectory,solutions,fs = task.gradient_descent(6, start_point)
+    task.draw_level_lines(np.array(fs))
     
     task.plot_veasible_region(trajectory)
     # Newton method
@@ -353,8 +356,8 @@ def main():
             float(task.gradient[0].subs({task.x1: new_point[0], task.x2: new_point[1]})),
             float(task.gradient[1].subs({task.x1: new_point[0], task.x2: new_point[1]}))
             ])
-    print(task.gradient)
     print(task.function)
+    print(task.gradient)
     print(task.hessian)
     print_solutions(solutions)
 if __name__ == '__main__':
