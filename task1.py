@@ -162,8 +162,8 @@ class Task1:
         plt.axhline(y=0, color='black', lw=2, label='Ось y')
 
         # Разметка оси
-        plt.xticks(np.arange(0, 10, 1))
-        plt.yticks(np.arange(0, 10, 1))
+        plt.xticks(np.arange(-50, 50, 1))
+        plt.yticks(np.arange(-50, 50, 1))
         plt.legend(loc='best')     
        
         # Траектория
