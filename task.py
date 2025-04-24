@@ -181,7 +181,7 @@ class Task1:
         plt.show()
         plt.close()
     
-    def gradient_descent(self, iterations: int, start_point: np.ndarray, tol: float = 1e-6, min:bool = True) -> np.ndarray:
+    def gradient_descent(self, iterations: int, start_point: np.ndarray,min_:bool = True, tol: float = 1e-6, ) -> np.ndarray:
         """Градиентный спуск с аналитическим подбором шага"""
         trajectory = [start_point.copy()]
         solutions = []
@@ -189,16 +189,15 @@ class Task1:
         x_k = start_point.copy()
         
         t = 1
-        if min:
+        if min_:
             t = -1
-        print(t)
         for _ in range(iterations):
             solution = Solution()
             solution.x_k = x_k.copy()
             fs1= self.function.subs({self.x1: x_k[0], self.x2: x_k[1]})
             fs.append(fs1)
             # Вычисляем градиент в текущей точке
-            grad = np.array([
+            grad = t*np.array([
                 float(self.gradient[0].subs({self.x1: x_k[0], self.x2: x_k[1]})),
                 float(self.gradient[1].subs({self.x1: x_k[0], self.x2: x_k[1]}))
             ], dtype=np.float64)
@@ -210,7 +209,7 @@ class Task1:
                 
             # Оптимальный шаг
             alpha = sm.Symbol('a')
-            x_new = x_k +t* alpha * grad
+            x_new = x_k + alpha * grad
             # print(x_new)
             x_new = np.array([round_expr(item)for item in x_new], dtype=object)
 
@@ -241,8 +240,7 @@ class Task1:
             solutions.append(solution)
             trajectory.append(x_k.copy())
         
-        if min:
-            fs = trajectory[::-1]
+        fs = fs[::t]
         # self.draw_level_lines(trajectory)
         return np.array(trajectory), solutions, fs
     def draw_level_lines(self, points):
@@ -312,19 +310,11 @@ def round_expr(expr, decimals=3):
         for n in expr.atoms(sm.Number)
         if isinstance(n, (float, sm.Float))
     })
-
-def main():
+def main(f,g1,g2):
     # вводить сюда коефициенты
-    f_koefs = '3 1 -2 5 -9'.split()
-    g1_koefs = '-1 4 -12'.split(' ')
-    g2_koefs = '13 -8 -64'.split(' ')
-
-
-
-
-
-
-
+    f_koefs = f.split()
+    g1_koefs = g1.split(' ')
+    g2_koefs = g2.split(' ')
 
     a, b, c, d, e = map(float, f_koefs)
     function = f'{a}*x1**2 + {b}*x2**2 + {c}*x1*x2 + {d}*x1 + {e}*x2'
@@ -341,24 +331,50 @@ def main():
     
     # Начальная точка внутри ОДР
     start_point = task.get_random_point()
-
-    trajectory,solutions,fs = task.gradient_descent(6, start_point)
-    task.draw_level_lines(np.array(fs))
+    eigenvalues = np.linalg.eigvals(task.hessian)
+    min_ = True
+    if eigenvalues.all() > 0:
+        min_ = False
+        
+    trajectory,solutions,fs = task.gradient_descent(100, start_point, min_= min_)
+    task.draw_level_lines(np.array(trajectory[::-1]))
     
     task.plot_veasible_region(trajectory)
-    # Newton method
+
+
+    #start info
+    # 1 .F, g1,g2,grad(f), hessian, hessian^-1
+    opt_task = 'минимум'
+    if min_:
+        opt_task = 'максимум'
+    
+    print(f"Найти {opt_task} функции")
+    print("F(x) = ",task.function)
+    print('g1 = ',task.g1)
+    print('g2 = ', task.g2)
+    print('H = ',task.hessian)
+    print('H^-1 = ',np.linalg.inv(task.hessian))
+
+    # 2.Newton method
+    print()
+    print()
+    print("Метод ньютона")
+    print("="*50 + "\n")
     grad = np.array([
                 float(task.gradient[0].subs({task.x1: start_point[0], task.x2: start_point[1]})),
                 float(task.gradient[1].subs({task.x1: start_point[0], task.x2: start_point[1]}))
             ])
+    print('x* = ', start_point,' - ', np.linalg.inv(task.hessian),' * ', grad)
     new_point = start_point - np.linalg.inv(task.hessian)@grad
-    grad2 = np.array([
-            float(task.gradient[0].subs({task.x1: new_point[0], task.x2: new_point[1]})),
-            float(task.gradient[1].subs({task.x1: new_point[0], task.x2: new_point[1]}))
-            ])
-    print(task.function)
-    print(task.gradient)
-    print(task.hessian)
+    print('x* = ', new_point)
+    print("="*50 + "\n")
+
+    #3. grad desc
+    print("Градиентный спуск")
     print_solutions(solutions)
 if __name__ == '__main__':
-    main()
+        # вводить сюда коефициенты
+    f_koefs = '3 1 -2 5 -9'
+    g1_koefs = '-1 4 -12'
+    g2_koefs = '13 -8 -64'
+    main(f_koefs,g1_koefs,g2_koefs)
