@@ -181,7 +181,7 @@ class Task1:
         plt.show()
         plt.close()
     
-    def gradient_descent(self, iterations: int, start_point: np.ndarray,min_:bool = True, tol: float = 1e-6, ) -> np.ndarray:
+    def gradient_descent(self, iterations: int, start_point: np.ndarray,min_:bool = False) -> np.ndarray:
         """Градиентный спуск с аналитическим подбором шага"""
         trajectory = [start_point.copy()]
         solutions = []
@@ -201,7 +201,7 @@ class Task1:
                 float(self.gradient[0].subs({self.x1: x_k[0], self.x2: x_k[1]})),
                 float(self.gradient[1].subs({self.x1: x_k[0], self.x2: x_k[1]}))
             ], dtype=np.float64)
-            solution.grad_x_k = np.round(grad,5)
+            solution.grad_x_k = t*np.round(grad,5)
 
             if np.linalg.norm(grad) < 0.01:
                 break
@@ -234,13 +234,13 @@ class Task1:
 
             solution.alpha = alpha_val
 
-            x_k = x_k + t*alpha_val * grad
+            x_k = x_k + alpha_val * grad
             solution.x_k1 = x_k
 
             solutions.append(solution)
             trajectory.append(x_k.copy())
         
-        fs = fs[::t]
+        fs = trajectory[::t]
         # self.draw_level_lines(trajectory)
         return np.array(trajectory), solutions, fs
     def draw_level_lines(self, points):
@@ -332,12 +332,12 @@ def main(f,g1,g2):
     # Начальная точка внутри ОДР
     start_point = task.get_random_point()
     eigenvalues = np.linalg.eigvals(task.hessian)
-    min_ = True
+    min_ = False
     if eigenvalues.all() > 0:
-        min_ = False
+        min_ = True
         
-    trajectory,solutions,fs = task.gradient_descent(100, start_point, min_= min_)
-    task.draw_level_lines(np.array(trajectory[::-1]))
+    trajectory,solutions,fs = task.gradient_descent(20,start_point, min_= min_)
+    task.draw_level_lines(np.array(fs))
     
     task.plot_veasible_region(trajectory)
 
