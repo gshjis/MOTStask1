@@ -21,7 +21,7 @@ jobs:
         pip install pyinstaller reportlab
     - name: Build with PyInstaller
       run: |
-        pyinstaller --onefile --windowed --add-data "DejaVuSans.ttf;." simplex_app.py
+        pyinstaller --onefile --windowed symplex.py
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
