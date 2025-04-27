@@ -1,0 +1,29 @@
+name: Build Simplex App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller reportlab
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile --windowed --add-data "DejaVuSans.ttf;." simplex_app.py
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: simplex-app-windows
+        path: dist/simplex_app.exe

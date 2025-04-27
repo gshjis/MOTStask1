@@ -336,10 +336,9 @@ def main(f,g1,g2):
     if eigenvalues.all() > 0:
         min_ = True
         
-    trajectory,solutions,fs = task.gradient_descent(20,start_point, min_= min_)
-    task.draw_level_lines(np.array(fs))
+    trajectory,solutions,fs = task.gradient_descent(20,np.array([5.26,0]), min_= min_)
+    task.draw_level_lines(np.array(fs[::-1]))
     
-    task.plot_veasible_region(trajectory)
 
 
     #start info
@@ -372,9 +371,26 @@ def main(f,g1,g2):
     #3. grad desc
     print("Градиентный спуск")
     print_solutions(solutions)
+
+    # x = sm.symbols('a')
+    # x1 = x*(-0.71)
+    # x2 = x*(0.71)
+    # result = task.function.subs({task.x1: x1, task.x2: x2})
+    # expanded_result = sm.expand(result)
+    # print('F(a) = ',expanded_result)
+    # print('gradF = ',sm.diff(expanded_result,x))
+    # a = sm.solve(sm.diff(expanded_result,x), x)[0]
+    # # a = -5.26
+    # print('a = ', a)
+    # print('x1 = ', x1.subs(x,a))
+    # print('x2 = ',x2.subs(x,a))
+
+
+    task.plot_veasible_region(trajectory)
+
 if __name__ == '__main__':
         # вводить сюда коефициенты
-    f_koefs = '3 1 -2 5 -9'
-    g1_koefs = '-1 4 -12'
-    g2_koefs = '13 -8 -64'
+    f_koefs = '-1 -5 -1 -2 1'
+    g1_koefs = '-8 3 0'
+    g2_koefs = '1 1 -11'
     main(f_koefs,g1_koefs,g2_koefs)
